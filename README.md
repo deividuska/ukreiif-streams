@@ -14,6 +14,7 @@ class and id uses the `uks-` prefix so the two can never clash.
 | `pages/investment-trends.html` | Investment and Finance Trends &amp; Insights. |
 | `pages/transport.html` | Transport &amp; Infrastructure Stage, with three programme day tabs. |
 | `pages/sports.html` | Sports Investment &amp; Regeneration Summit, with Wednesday and Thursday programme tabs. |
+| `pages/heritage.html` | Heritage, Culture &amp; Creative Industries Zone. |
 
 Served by GitHub Pages: `https://deividuska.github.io/ukreiif-streams/`
 

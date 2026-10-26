@@ -383,6 +383,12 @@
   text-align: left;
 }
 
+/* ----- Left-aligned sponsor labels ----- */
+
+.uks-sponsors-labels-left .uks-eyebrow {
+  text-align: left;
+}
+
 .uks-video {
   overflow: hidden;
   border-radius: 8px;
