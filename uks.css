@@ -389,6 +389,12 @@
   text-align: left;
 }
 
+/* ----- Sponsor labels at the text edge ----- */
+
+.uks-sponsors-flush {
+  padding-left: 0;
+}
+
 .uks-video {
   overflow: hidden;
   border-radius: 8px;
@@ -491,6 +497,34 @@
   font-size: 13px;
   font-weight: 700;
   color: #9a9ea8;
+}
+
+/* ----- Programme session group labels ----- */
+
+.uks-session-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 32px 0 14px;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 1px;
+  color: #1b2a62;
+}
+
+.uks-session-group::before {
+  content: "";
+  flex: 0 0 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d71920;
+}
+
+.uks-session-group::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #d8d3c9;
 }
 
 .uks-speakers {

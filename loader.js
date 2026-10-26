@@ -7,7 +7,7 @@
 
 (function () {
   // Bump this whenever uks.css changes, so browsers fetch the new file instead of a cached one
-  var CSS_VERSION = '1.5.0';
+  var CSS_VERSION = '1.6.0';
 
   var root = document.getElementById('uks-page');
   if (!root) return;
