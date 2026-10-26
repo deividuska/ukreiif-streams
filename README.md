@@ -8,8 +8,9 @@ class and id uses the `uks-` prefix so the two can never clash.
 |---|---|
 | `loader.js` | Fetches `pages/<data-page>.html` into the Event Maker placeholder, then loads `uks.css` and `uks.js`. |
 | `uks.css` | All styles. Scoped to `.uks` / `uks-`, plus the rule that removes Event Maker's container padding. |
-| `uks.js` | Loads the HubSpot form embed on pages that have a form. |
+| `uks.js` | Sorts the attending-organisation logos A-Z and loads the HubSpot form embed. |
 | `pages/content-streams.html` | Content Streams holding page. |
+| `pages/high-streets.html` | High Streets &amp; Urban Centres Day. |
 
 Served by GitHub Pages: `https://deividuska.github.io/ukreiif-streams/`
 
