@@ -271,6 +271,20 @@
   flex: 0 0 50%;
 }
 
+/* ----- Form heading with supporting text ----- */
+
+.uks-form-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.uks-form-copy p {
+  margin: 24px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #fff;
+}
+
 /* ----- Stream page: hero ----- */
 
 .uks-stream-hero {
@@ -330,6 +344,45 @@
   object-fit: contain;
 }
 
+/* ----- Stream pages: multiple sponsor rows ----- */
+
+.uks-sponsors-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 32px 20px;
+  padding-left: 0;
+}
+
+.uks-sponsors-grid .uks-sponsor img {
+  max-width: 100%;
+}
+
+/* ----- Grouped sponsor labels ----- */
+
+.uks-sponsors-grouped .uks-sponsor {
+  text-align: left;
+}
+
+.uks-sponsors-grouped .uks-sponsor img {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.uks-sponsor-headline {
+  grid-column: 1 / -1;
+}
+
+.uks-sponsor-headline img {
+  width: 180px;
+}
+
+.uks-sponsor-heading {
+  grid-column: 1 / -1;
+  margin: 8px 0 -12px;
+  font-size: 12px;
+  text-align: left;
+}
+
 .uks-video {
   overflow: hidden;
   border-radius: 8px;
@@ -343,7 +396,52 @@
   object-fit: cover;
 }
 
+/* ----- Vertically centred hero media ----- */
+
+.uks-hero-media-centered .uks-stream-hero-inner {
+  align-items: center;
+}
+
 /* ----- Stream page: programme + speakers ----- */
+
+/* ----- Programme day tabs ----- */
+
+.uks-tab-list {
+  display: flex;
+  gap: 10px;
+  padding: 0 6px;
+}
+
+.uks-tab {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 8px;
+  border: 1px solid #9a9ea8;
+  border-bottom: 0;
+  border-radius: 3px 3px 0 0;
+  background: #f8f8f8;
+  color: #1b2a62;
+  font: inherit;
+  cursor: pointer;
+}
+
+.uks-tab[aria-selected="true"] {
+  background: #fff;
+}
+
+.uks-tab:hover {
+  background: #fff;
+}
+
+.uks-tab:focus-visible,
+.uks-tab-panel:focus-visible {
+  outline: 2px solid #1b2a62;
+  outline-offset: 2px;
+}
+
+.uks-tab-panel[hidden] {
+  display: none;
+}
 
 .uks-programme-section {
   padding: 40px 0 70px;
@@ -535,6 +633,11 @@
     padding: 0 16px;
   }
 
+  /* Promo videos are large, so they're desktop/tablet only (matches media= on their <source>) */
+  .uks-video-desktop {
+    display: none;
+  }
+
   .uks-hero {
     padding: 50px 0 140px;
   }
@@ -584,6 +687,16 @@
   .uks-sponsors {
     justify-content: center;
     padding-left: 0;
+  }
+
+  .uks-sponsors-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px 16px;
+  }
+
+  .uks-tab-list {
+    gap: 6px;
+    padding: 0;
   }
 
   .uks-heading {

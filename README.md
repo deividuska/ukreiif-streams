@@ -11,6 +11,9 @@ class and id uses the `uks-` prefix so the two can never clash.
 | `uks.js` | Sorts the attending-organisation logos A-Z and loads the HubSpot form embed. |
 | `pages/content-streams.html` | Content Streams holding page. |
 | `pages/high-streets.html` | High Streets &amp; Urban Centres Day. |
+| `pages/investment-trends.html` | Investment and Finance Trends &amp; Insights. |
+| `pages/transport.html` | Transport &amp; Infrastructure Stage, with three programme day tabs. |
+| `pages/sports.html` | Sports Investment &amp; Regeneration Summit, with Wednesday and Thursday programme tabs. |
 
 Served by GitHub Pages: `https://deividuska.github.io/ukreiif-streams/`
 
@@ -37,3 +40,25 @@ Portal `20215586`. Each form is a `<div class="hs-form-frame" data-form-id="…"
 - Stream pages: `f184626f-2cbd-44d3-bed8-46748d654a4a`
 
 The form renders inside an iframe, so field and button styling is set in HubSpot (form style settings), not in `uks.css`.
+
+## Investment and Finance Trends & Insights page
+
+Use this snippet in the new Event Maker page's codeit block:
+
+```html
+<div class='container uks-full {{ settings.spacing }}' data-section-id='{{ section.id }}' data-section-type='codeit'>
+  <div id="uks-page" data-page="investment-trends"></div>
+  <script src="https://deividuska.github.io/ukreiif-streams/loader.js"></script>
+</div>
+```
+
+The page reuses the High Streets layout, shared CSS/JS and stream registration form.
+Its title, date, six programme entries, nine previous voices, 63 attending organisations
+and About copy follow the supplied Investment reference screenshot. The shared script
+sorts attending organisations alphabetically.
+
+Missing source assets currently use labelled placeholders: the Man session-partner logo,
+all nine speaker portraits and all 63 organisation logos. The `bg` organisation label
+is transcribed from its logo in the reference; confirm its full name when supplying assets.
+The hero uses the existing Investment stream card's Event Maker image URL; the About
+section reuses the existing High Streets Event Maker image.

@@ -2,6 +2,38 @@
    Loaded by loader.js after the page HTML is in place. */
 
 (function () {
+  // Programme day tabs: each group works independently, with keyboard navigation.
+  document.querySelectorAll('.uks-tabs').forEach(function (group) {
+    var tabs = Array.prototype.slice.call(group.querySelectorAll('.uks-tab'));
+    var panels = group.querySelectorAll('.uks-tab-panel');
+
+    var select = function (selected, focus) {
+      tabs.forEach(function (tab) {
+        var active = tab === selected;
+        tab.setAttribute('aria-selected', active ? 'true' : 'false');
+        tab.tabIndex = active ? 0 : -1;
+      });
+      panels.forEach(function (panel) {
+        panel.hidden = panel.id !== selected.getAttribute('aria-controls');
+      });
+      if (focus) selected.focus();
+    };
+
+    tabs.forEach(function (tab, index) {
+      tab.addEventListener('click', function () { select(tab, false); });
+      tab.addEventListener('keydown', function (event) {
+        var next;
+        if (event.key === 'ArrowRight') next = (index + 1) % tabs.length;
+        else if (event.key === 'ArrowLeft') next = (index + tabs.length - 1) % tabs.length;
+        else if (event.key === 'Home') next = 0;
+        else if (event.key === 'End') next = tabs.length - 1;
+        else return;
+        event.preventDefault();
+        select(tabs[next], true);
+      });
+    });
+  });
+
   // Attending organisations: sort logos A-Z by alt text (or file name), ignoring a leading "The"
   document.querySelectorAll('.uks-orgs').forEach(function (gallery) {
     var key = function (fig) {
