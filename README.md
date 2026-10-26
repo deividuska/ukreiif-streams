@@ -16,6 +16,7 @@ class and id uses the `uks-` prefix so the two can never clash.
 | `pages/sports.html` | Sports Investment &amp; Regeneration Summit, with Wednesday and Thursday programme tabs. |
 | `pages/heritage.html` | Heritage, Culture &amp; Creative Industries Zone. |
 | `pages/healthcare.html` | Healthcare Day, with Cinema Stage and Roundtable Room programme groups. |
+| `pages/education.html` | Education &amp; Place Day. |
 
 Served by GitHub Pages: `https://deividuska.github.io/ukreiif-streams/`
 
