@@ -1,0 +1,290 @@
+/* ===== UKREiiF Content Streams – all styles =====
+   Everything is scoped under .uks / uks- so it never clashes with Event Maker or Leaders Group (ukl-). */
+
+/* Remove Event Maker's container padding/width so the section runs edge to edge */
+.container.uks-full {
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+  max-width: none !important;
+}
+
+.uks {
+  color: #1b2a62;
+  line-height: 1.5;
+}
+
+.uks *,
+.uks *::before,
+.uks *::after {
+  box-sizing: border-box;
+}
+
+.uks img {
+  display: block;
+  max-width: 100%;
+}
+
+.uks-wrap {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ----- Buttons ----- */
+
+.uks-btn {
+  display: inline-block;
+  padding: 16px 28px;
+  border: 2px solid transparent;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none !important;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.uks-btn-red {
+  background: #dc1915;
+  border-color: #dc1915;
+  color: #fff !important;
+}
+
+.uks-btn-red:hover {
+  background: #b8130f;
+  border-color: #b8130f;
+}
+
+.uks-btn-outline {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.55);
+  color: #fff !important;
+}
+
+.uks-btn-outline:hover {
+  background: #fff;
+  border-color: #fff;
+  color: #1b2a62 !important;
+}
+
+/* ----- Holding page: hero ----- */
+
+.uks-hero {
+  background: #1b2a62;
+  color: #fff;
+  padding: 80px 0 170px;
+}
+
+.uks-hero-inner {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 40px;
+}
+
+.uks-eyebrow {
+  margin: 0 0 14px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.uks-hero h1 {
+  margin: 0 0 18px;
+  font-size: 64px;
+  font-weight: 900;
+  line-height: 1.1;
+  color: #fff;
+}
+
+.uks-hero-text {
+  max-width: 580px;
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.uks-hero-buttons {
+  display: flex;
+  flex-shrink: 0;
+  gap: 14px;
+  padding-bottom: 6px;
+}
+
+/* ----- Holding page: stream cards ----- */
+
+.uks-streams {
+  padding-bottom: 90px;
+}
+
+.uks-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: -100px;
+}
+
+.uks-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 4px 18px rgba(27, 42, 98, 0.1);
+  color: inherit !important;
+  text-decoration: none !important;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.uks-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 28px rgba(27, 42, 98, 0.18);
+}
+
+.uks-card-img {
+  width: 100%;
+  aspect-ratio: 21 / 10;
+  object-fit: cover;
+}
+
+.uks-card-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 26px 22px 24px;
+}
+
+.uks-card-date {
+  margin: 0 0 12px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #dc1915;
+}
+
+.uks-card-title {
+  margin: 0 0 10px;
+  font-size: 23px;
+  font-weight: 900;
+  line-height: 1.15;
+  color: #1b2a62;
+}
+
+.uks-card-text {
+  margin: 0 0 20px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #4a4f5c;
+}
+
+.uks-card-link {
+  margin-top: auto;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1b2a62;
+}
+
+.uks-card:hover .uks-card-link {
+  color: #dc1915;
+}
+
+/* ----- Red form section (holding page + stream pages) ----- */
+
+.uks-form-section {
+  background: #dc1915;
+  padding: 80px 0;
+  scroll-margin-top: 80px;
+}
+
+.uks-form-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 60px;
+}
+
+.uks-form-section h2 {
+  flex: 1;
+  max-width: 620px;
+  margin: 0;
+  font-size: 34px;
+  font-weight: 900;
+  line-height: 1.15;
+  color: #fff;
+}
+
+.uks-form-card {
+  flex: 0 0 624px;
+  max-width: 100%;
+  min-height: 300px;
+  padding: 8px;
+  border-radius: 8px;
+  background: #fff;
+}
+
+/* ----- Responsive ----- */
+
+@media (max-width: 900px) {
+  .uks-hero-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 1100px) {
+  .uks-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .uks-form-inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 32px;
+  }
+
+  .uks-form-card {
+    flex-basis: auto;
+  }
+}
+
+@media (max-width: 767px) {
+  .uks-wrap {
+    padding: 0 16px;
+  }
+
+  .uks-hero {
+    padding: 50px 0 140px;
+  }
+
+  .uks-hero h1 {
+    font-size: 40px;
+  }
+
+  .uks-hero-text {
+    font-size: 16px;
+  }
+
+  .uks-hero-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .uks-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .uks-form-section {
+    padding: 56px 0;
+  }
+
+  .uks-form-section h2 {
+    font-size: 28px;
+  }
+
+  .uks-form-card {
+    padding: 0;
+  }
+}
