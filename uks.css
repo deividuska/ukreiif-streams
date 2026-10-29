@@ -686,10 +686,6 @@
     padding: 0 16px;
   }
 
-  /* Promo videos are large, so they're desktop/tablet only (matches media= on their <source>) */
-  .uks-video-desktop {
-    display: none;
-  }
 
   .uks-hero {
     padding: 50px 0 140px;
