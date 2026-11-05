@@ -65,3 +65,31 @@ all nine speaker portraits and all 63 organisation logos. The `bg` organisation 
 is transcribed from its logo in the reference; confirm its full name when supplying assets.
 The hero uses the existing Investment stream card's Event Maker image URL; the About
 section reuses the existing High Streets Event Maker image.
+
+## Sync logos from WordPress
+
+`sync/sync_wordpress.py` reads the "Who's in the room" logos (`.wp-block-group.hcc-section`) on
+each stream's ukreiif.com page and makes our attending organisations logos match. WordPress is
+the source for which logos show: logos added only here are removed by the next sync, so add
+them on WordPress. A logo we already have keeps our name (matched by name or image file, allowing
+for small differences like "FC" / "Football Club"); only new logos take their WordPress alt text,
+so give those a proper alt text when uploading. Nothing else on the pages is touched.
+
+Run it on your PC from the repo folder:
+
+```bash
+python sync/sync_wordpress.py --dry-run
+```
+
+shows what would change without touching anything. Then
+
+```bash
+python sync/sync_wordpress.py
+```
+
+updates the files in `pages/`. Commit and push as usual to publish.
+
+- **Which pages:** `STREAMS` at the top of the script.
+- **Safety:** if a WordPress page fails to load, has no "Who's in the room" section or shows
+  fewer than 10 logos, or our logo block isn't recognised, the script stops and changes nothing.
+- **First time only:** `pip install -r sync/requirements.txt`
