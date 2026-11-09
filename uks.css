@@ -510,6 +510,28 @@
   color: #9a9ea8;
 }
 
+/* ----- Programme with times and descriptions (Heritage) ----- */
+
+.uks-programme-date {
+  margin: -8px 0 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #dc1915;
+}
+
+.uks-session .uks-session-time {
+  margin-bottom: 6px;
+  font-size: 12px;
+  color: #6b6f78;
+}
+
+.uks-session-desc {
+  margin: 8px 0 10px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #555b66;
+}
+
 /* ----- Programme session group labels ----- */
 
 .uks-session-group {
