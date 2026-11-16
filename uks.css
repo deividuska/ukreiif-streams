@@ -387,6 +387,16 @@
   width: 180px;
 }
 
+/* Two headline partners share the first row instead of one spanning it */
+.uks-sponsors-headline-pair .uks-sponsor-headline {
+  grid-column: auto;
+}
+
+/* Square-ish crests (e.g. Premier League) look oversized at the full headline width */
+.uks-sponsor-headline img.uks-sponsor-logo-small {
+  width: 90px;
+}
+
 .uks-sponsor-heading {
   grid-column: 1 / -1;
   margin: 8px 0 -12px;
