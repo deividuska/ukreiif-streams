@@ -1,7 +1,8 @@
 """Sync sponsors and "Who's in the room" logos from ukreiif.com (WordPress) into pages/.
 
-WordPress is the source for two parts of each stream page:
+WordPress is the source for three parts of each stream page:
 - sponsors and partners next to the video (labels, logos, order)
+- the outline programme (day tabs, room headings, sessions and the line under each)
 - the attending organisations logos ("Who's in the room")
 The script prints what was added, removed or changed.
 Run from anywhere:
@@ -325,6 +326,214 @@ def sync_sponsors(page, stream, wp_groups):
     return page[:m.start()] + new + page[m.end():], notes
 
 
+# ---------- programme ----------
+
+# Words kept in capitals when an ALL CAPS title from WordPress is put into title case
+KEEP_CAPS = {'TBC', 'KFC', 'MAC', 'AUDE', 'MBE', 'OBE', 'CBE', 'UK', 'MP', 'NHS', 'VIP', 'AI',
+             'PLC', 'LLP', 'FC', 'AFC', 'RHS', 'BBC', 'HS2', 'TFL', 'KSS', 'SSE', 'BAM', 'NISTA',
+             'UKREIIF', 'Q&A'}
+SMALL_WORDS = {'a', 'an', 'and', 'as', 'at', 'by', 'for', 'from', 'in', 'of', 'on', 'or', 'the',
+               'to', 'with', 'via', 'vs'}
+
+
+def title_case(t):
+    """'HOPE ON THE HIGH STREET: FROM POLICY TO PROGRESS' -> 'Hope on the High Street: From
+    Policy to Progress'. Titles that aren't all capitals are left exactly as written."""
+    if not re.search('[A-Z]', t) or t != t.upper():
+        return t
+    out, start = [], True
+    for w in t.split(' '):
+        core_ = re.sub(r'[^A-Za-z0-9&]', '', w)
+        if core_.upper() in KEEP_CAPS:
+            out.append(w)
+        elif core_.lower() in SMALL_WORDS and not start:
+            out.append(w.lower())
+        else:
+            out.append('-'.join(x[:1].upper() + x[1:].lower() for x in w.split('-')))
+        start = w.endswith(':') or w in ('-', '–', '—')
+    return ' '.join(out)
+
+
+def esc_text(s):
+    """Text between tags the way our pages write it (quotes left alone)."""
+    return html.escape(s, quote=False).encode('ascii', 'xmlcharrefreplace').decode()
+
+
+def read_wp_programme(soup, url):
+    """{'date', 'tabs': [names] or None, 'days': [[group, ...], ...]} where a group is
+    {'heading', 'sessions': [{'time', 'title', 'sub'}]}. Without tabs there is one day."""
+    section = soup.select_one('#programme')
+    column = section.select_one('.wp-block-column') if section else None
+    if not column:
+        raise Stop(f'{url} no longer shows an outline programme')
+    state = {'date': None}
+
+    def cls(el):
+        return ' '.join(el.get('class') or [])
+
+    def read(box):
+        groups, used, time_ = [{'heading': None, 'sessions': []}], set(), None
+        for el in box.find_all('p'):
+            c, t = cls(el), text(el.get_text(' '))
+            if id(el) in used or not t:
+                continue
+            if 'hcc-prog-day' in c:
+                state['date'] = t
+            elif 'hcc-room' in c:
+                groups.append({'heading': t, 'sessions': []})
+            elif re.search(r'__time\b', c):
+                time_ = t
+            elif re.search(r'__title\b', c):
+                # the line under a title: the next paragraph beside it that isn't a title or time
+                sub = next((x for x in el.find_next_siblings('p')
+                            if not re.search(r'__(title|time)\b|hcc-room', cls(x))), None)
+                if sub is not None and text(sub.get_text(' ')):
+                    used.add(id(sub))
+                groups[-1]['sessions'].append({
+                    'time': time_, 'title': title_case(t),
+                    'sub': text(sub.get_text(' ')) if sub is not None and text(sub.get_text(' ')) else None})
+                time_ = None
+        return [g for g in groups if g['sessions']]
+
+    panels = column.select('.wp-block-tab-panel')
+    if panels:
+        tabs = [text(b.get_text(' ')) for b in column.select('.wp-block-tab-list [role="tab"]')]
+        if len(tabs) != len(panels):
+            raise Stop(f'{url}: programme has {len(tabs)} tab names but {len(panels)} tabs')
+        days = [read(x) for x in panels]
+    else:
+        tabs, days = None, [read(column)]
+    if not any(g['sessions'] for d in days for g in d):
+        raise Stop(f'{url}: the outline programme has no sessions')
+    return {'date': state['date'], 'tabs': tabs, 'days': days}
+
+
+# Our programme: everything between the "OUTLINE PROGRAMME" heading and the end of its column
+PROGRAMME_RE = re.compile(r'<p class="uks-eyebrow">OUTLINE PROGRAMME</p>\n {8}<h2 class="uks-heading">[^\n]*</h2>\n'
+                          r'(.*?)\n {6}</div>\n', re.S)
+
+
+def read_our_programme(region):
+    soup = BeautifulSoup(region, 'html.parser')
+
+    def groups(box):
+        out, heading = [], None
+        for el in box.find_all(['h3', 'ul'], recursive=False):
+            if el.name == 'h3':
+                heading = text(el.get_text())
+                continue
+            sessions = []
+            for li in el.find_all('li', recursive=False):
+                t = li.find('span', class_='uks-session-time')
+                sub = next((x for x in li.find_all('span', recursive=False) if not x.get('class')), None)
+                sessions.append({'time': text(t.get_text()) if t else None,
+                                 'title': text(li.find('strong').get_text()),
+                                 'sub': text(sub.get_text()) if sub else None})
+            out.append({'heading': heading, 'sessions': sessions})
+            heading = None
+        return out
+
+    date = soup.find('p', class_='uks-programme-date', recursive=False)
+    tabs = soup.find('div', class_='uks-tabs', recursive=False)
+    if tabs:
+        buttons = tabs.select('.uks-tab-list button')
+        panels = tabs.find_all('div', class_='uks-tab-panel', recursive=False)
+        return {'date': text(date.get_text()) if date else None,
+                'tabs': [text(b.get_text()) for b in buttons], 'ids': [x['id'] for x in panels],
+                'days': [groups(x) for x in panels]}
+    return {'date': text(date.get_text()) if date else None, 'tabs': None, 'ids': [],
+            'days': [groups(soup)]}
+
+
+def render_programme(prog, page_name, ids, times):
+    """Our programme HTML, in the same layout our pages already use."""
+    def groups(gs, pad):
+        lines = []
+        for g in gs:
+            if g['heading']:
+                lines.append(f'{pad}<h3 class="uks-session-group">{esc_text(g["heading"].upper())}</h3>')
+            lines.append(f'{pad}<ul class="uks-sessions">')
+            for x in g['sessions']:
+                lines.append(f'{pad}  <li class="uks-session">')
+                if times and x['time']:
+                    lines.append(f'{pad}    <span class="uks-session-time">{esc_text(x["time"])}</span>')
+                lines.append(f'{pad}    <strong>{esc_text(x["title"])}</strong>')
+                if x['sub']:
+                    lines.append(f'{pad}    <span>{esc_text(x["sub"])}</span>')
+                lines.append(f'{pad}  </li>')
+            lines.append(f'{pad}</ul>')
+        return lines
+
+    pad = ' ' * 8
+    lines = [f'{pad}<p class="uks-programme-date">{esc_text(prog["date"])}</p>'] if prog['date'] else []
+    if not prog['tabs']:
+        return '\n'.join(lines + groups(prog['days'][0], pad))
+    tab_ids = [ids[i] if i < len(ids) else
+               f'uks-{page_name}-{re.sub(r"[^a-z0-9]+", "-", n.lower()).strip("-")}'
+               for i, n in enumerate(prog['tabs'])]
+    lines += [f'{pad}<div class="uks-tabs">',
+              f'{pad}  <div class="uks-tab-list" role="tablist" aria-label="Programme day">']
+    for i, (name, tid) in enumerate(zip(prog['tabs'], tab_ids)):
+        first = i == 0
+        lines.append(f'{pad}    <button class="uks-tab" type="button" role="tab" id="{tid}-tab" '
+                     f'aria-controls="{tid}" aria-selected="{"true" if first else "false"}" '
+                     f'tabindex="{0 if first else -1}">{esc_text(name)}</button>')
+    lines.append(f'{pad}  </div>')
+    for i, (gs, tid) in enumerate(zip(prog['days'], tab_ids)):
+        lines.append(f'{pad}  <div class="uks-tab-panel" role="tabpanel" id="{tid}" '
+                     f'aria-labelledby="{tid}-tab" tabindex="0"{"" if i == 0 else " hidden"}>')
+        lines += groups(gs, pad + '    ')
+        lines.append(f'{pad}  </div>')
+    lines.append(f'{pad}</div>')
+    return '\n'.join(lines)
+
+
+def programme_lines(prog):
+    """One readable line per session, for the change report."""
+    out = []
+    if prog['date']:
+        out.append(f'date: {prog["date"]}')
+    for i, gs in enumerate(prog['days']):
+        tab = f'{prog["tabs"][i]} | ' if prog['tabs'] else ''
+        for g in gs:
+            for x in g['sessions']:
+                head = f'{g["heading"].upper()} | ' if g['heading'] else ''
+                sub = f' ({x["sub"]})' if x['sub'] else ''
+                time_ = f'{x["time"]} ' if x['time'] else ''
+                out.append(f'{tab}{head}{time_}{x["title"]}{sub}')
+    return out
+
+
+def sync_programme(page, stream, wp):
+    found = list(PROGRAMME_RE.finditer(page))
+    if len(found) != 1:
+        raise Stop(f'pages/{stream["page"]}.html: outline programme not recognised, so it was left alone')
+    m = found[0]
+    region = m.group(1)
+    ours = read_our_programme(region)
+    times = any(x['time'] for gs in ours['days'] for g in gs for x in g['sessions'])
+    # Safety: we must be able to write our current programme back exactly, or we'd mangle it
+    if render_programme(ours, stream['page'], ours['ids'], times) != region:
+        raise Stop(f'pages/{stream["page"]}.html: programme layout not recognised, so it was left alone')
+    if not times:
+        wp = dict(wp, days=[[dict(g, sessions=[dict(x, time=None) for x in g['sessions']]) for g in gs]
+                            for gs in wp['days']])
+    new = render_programme(wp, stream['page'], ours['ids'], times)
+    notes = []
+    if new != region:
+        old_l, new_l = programme_lines(ours), programme_lines(wp)
+        diff = [l for l in difflib.ndiff(old_l, new_l) if l[:1] in '-+']
+        if not diff:
+            notes.append('programme layout updated (same sessions)')
+        else:
+            notes.append(f'programme: {sum(l[0] == "+" for l in diff)} lines new or changed, '
+                         f'{sum(l[0] == "-" for l in diff)} removed or replaced')
+            notes += [f'  `{l[0]} {l[2:]}`' for l in diff[:30]]
+            if len(diff) > 30:
+                notes.append(f'  ...and {len(diff) - 30} more')
+    return page[:m.start(1)] + new + page[m.end(1):], notes
+
+
 # ---------- run ----------
 
 def main():
@@ -350,8 +559,9 @@ def main():
             url = WP + st['wp']
             soup = BeautifulSoup(fetch(url), 'html.parser')
             new, sponsor_notes = sync_sponsors(original, st, read_wp_sponsors(soup, url))
+            new, programme_notes = sync_programme(new, st, read_wp_programme(soup, url))
             new, notes = sync_logos(new, st, read_wp_logos(soup, url))
-            notes = sponsor_notes + notes
+            notes = sponsor_notes + programme_notes + notes
             if new != original:
                 files[st['page']] = new
             report[st['name']] = notes
@@ -366,7 +576,7 @@ def main():
     if files:
         lines += ['Files: ' + ', '.join(f'`pages/{n}.html`' for n in files)]
     else:
-        lines = ['No changes: our sponsors and logos match WordPress.']
+        lines = ['No changes: our sponsors, programme and logos match WordPress.']
     print('\n'.join(lines))
 
     if not args.dry_run:

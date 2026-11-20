@@ -68,15 +68,21 @@ section reuses the existing High Streets Event Maker image.
 
 ## Sync from WordPress
 
-`sync/sync_wordpress.py` makes two parts of each stream page match its ukreiif.com page.
-WordPress is the source: anything added only here is removed by the next sync, so add it on
-WordPress. Nothing else on the pages (programme, speakers, text, video) is touched.
+`sync/sync_wordpress.py` makes three parts of each stream page match its ukreiif.com page.
+WordPress is the source: anything added or changed only here is undone by the next sync, so make
+the change on WordPress. Nothing else on the pages (speakers, text, video) is touched.
 
 - **Sponsors and partners** (next to the video): read from each `.hcc-partners` group on
   WordPress, a label (`.hcc-partners__label`) plus its logo row (`.hcc-partners__row`). WordPress
   decides the labels, logos and order. One logo under a label shows label and logo together;
   several logos under one label get one heading above them. Two "Headline" partners share the
   top row automatically.
+- **Outline programme** (the `#programme` section, left column): day tabs (standard WordPress
+  Tabs block), room headings (`.hcc-room`), session titles (any `..__title` class) and the line
+  under each title (the next paragraph). Heritage's date line (`.hcc-prog-day`) and times
+  (`..__time`) are used too; times only show on pages that already show them (Heritage).
+  Titles typed in ALL CAPS on WordPress are put into title case, keeping short names like KFC,
+  MAC, AUDE and TBC in capitals (`KEEP_CAPS` in the script); other titles stay as written.
 - **"Who's in the room" logos** (`.wp-block-group.hcc-section`): WordPress decides which
   attending organisations logos show.
 
@@ -102,7 +108,8 @@ updates the files in `pages/`. Commit and push as usual to publish.
 - **Which pages:** `STREAMS` at the top of the script.
 - **Safety:** if a WordPress page fails to load, shows no sponsors, has a sponsor group without
   exactly one label, has no "Who's in the room" section or shows fewer than 10 logos, or our
-  sponsor or logo block isn't recognised, the script stops and changes nothing.
+  sponsor, programme or logo block isn't recognised, the script stops and changes nothing.
+  Before touching a programme it checks it can write our current one back exactly.
 - **First time only:** `pip install -r sync/requirements.txt`
 
 ### Automatic sync (GitHub Action)
