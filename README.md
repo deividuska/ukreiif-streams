@@ -66,14 +66,24 @@ is transcribed from its logo in the reference; confirm its full name when supply
 The hero uses the existing Investment stream card's Event Maker image URL; the About
 section reuses the existing High Streets Event Maker image.
 
-## Sync logos from WordPress
+## Sync from WordPress
 
-`sync/sync_wordpress.py` reads the "Who's in the room" logos (`.wp-block-group.hcc-section`) on
-each stream's ukreiif.com page and makes our attending organisations logos match. WordPress is
-the source for which logos show: logos added only here are removed by the next sync, so add
-them on WordPress. A logo we already have keeps our name (matched by name or image file, allowing
-for small differences like "FC" / "Football Club"); only new logos take their WordPress alt text,
-so give those a proper alt text when uploading. Nothing else on the pages is touched.
+`sync/sync_wordpress.py` makes two parts of each stream page match its ukreiif.com page.
+WordPress is the source: anything added only here is removed by the next sync, so add it on
+WordPress. Nothing else on the pages (programme, speakers, text, video) is touched.
+
+- **Sponsors and partners** (next to the video): read from each `.hcc-partners` group on
+  WordPress, a label (`.hcc-partners__label`) plus its logo row (`.hcc-partners__row`). WordPress
+  decides the labels, logos and order. One logo under a label shows label and logo together;
+  several logos under one label get one heading above them. Two "Headline" partners share the
+  top row automatically.
+- **"Who's in the room" logos** (`.wp-block-group.hcc-section`): WordPress decides which
+  attending organisations logos show.
+
+In both parts a logo we already have keeps our name (matched by name or image file, allowing
+for small differences like "FC" / "Football Club"), and a sponsor keeps its size class (e.g. the
+smaller Premier League crest). Only new logos take their WordPress alt text, so give those a
+proper alt text when uploading.
 
 Run it on your PC from the repo folder:
 
@@ -90,6 +100,22 @@ python sync/sync_wordpress.py
 updates the files in `pages/`. Commit and push as usual to publish.
 
 - **Which pages:** `STREAMS` at the top of the script.
-- **Safety:** if a WordPress page fails to load, has no "Who's in the room" section or shows
-  fewer than 10 logos, or our logo block isn't recognised, the script stops and changes nothing.
+- **Safety:** if a WordPress page fails to load, shows no sponsors, has a sponsor group without
+  exactly one label, has no "Who's in the room" section or shows fewer than 10 logos, or our
+  sponsor or logo block isn't recognised, the script stops and changes nothing.
 - **First time only:** `pip install -r sync/requirements.txt`
+
+### Automatic sync (GitHub Action)
+
+`.github/workflows/sync-wordpress.yml` runs the same script on GitHub every hour Monday to Friday and
+every 3 hours at weekends. If
+WordPress changed, it commits "Sync from WordPress" to `main` and pushes, and GitHub Pages
+publishes it. If nothing changed it does nothing. Each run's summary is on the **Actions** tab.
+
+- **Run it now:** Actions tab -> "Sync from WordPress" -> **Run workflow**.
+- **Before working locally:** `git pull` first, as the Action may have pushed since your last push.
+- **If it fails** (WordPress down, blocked, or a safety stop) GitHub emails you and nothing changes.
+- **If a push fails with 403:** Settings -> Actions -> General -> Workflow permissions ->
+  "Read and write permissions".
+- GitHub pauses scheduled runs after 60 days without commits to the repo; it emails you and one
+  click on the Actions tab turns it back on.

@@ -1,0 +1,52 @@
+# Keeps sponsors and "Who's in the room" logos in pages/ matching ukreiif.com (WordPress).
+# Runs every hour Monday to Friday, every 3 hours on Saturday and Sunday (UTC),
+# and from the "Run workflow" button on the Actions tab.
+# If WordPress changed, it commits and pushes to main; GitHub Pages then publishes it.
+name: Sync from WordPress
+
+on:
+  schedule:
+    - cron: '0 * * * 1-5'      # Monday to Friday: every hour
+    - cron: '0 */3 * * 0,6'    # Saturday and Sunday: every 3 hours
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Never two syncs at once
+concurrency:
+  group: sync-wordpress
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install
+        run: pip install -r sync/requirements.txt
+
+      - name: Sync
+        run: |
+          python sync/sync_wordpress.py | tee sync-report.md
+          cat sync-report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit and push if anything changed
+        run: |
+          if git diff --quiet -- pages; then
+            echo "No changes."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pages
+          git commit -m "Sync from WordPress" -m "$(cat sync-report.md)"
+          # Someone may have pushed while this ran
+          git pull --rebase origin main
+          git push origin HEAD:main
