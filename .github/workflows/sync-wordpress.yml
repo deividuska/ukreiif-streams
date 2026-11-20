@@ -33,8 +33,11 @@ jobs:
         run: pip install -r sync/requirements.txt
 
       - name: Sync
+        env:
+          SYNC_KEY: ${{ secrets.SYNC_KEY }}
         run: |
-          python sync/sync_wordpress.py | tee sync-report.md
+          set -o pipefail  # a stopped sync must fail the run, so GitHub emails you
+          python sync/sync_wordpress.py 2>&1 | tee sync-report.md
           cat sync-report.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Commit and push if anything changed

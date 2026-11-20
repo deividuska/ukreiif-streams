@@ -46,8 +46,11 @@ class Stop(Exception):
 
 def fetch(url):
     # The query string skips the site's page cache, so we always see the latest version
-    req = urllib.request.Request(f'{url}?sync={int(time.time())}',
-                                 headers={'User-Agent': 'ukreiif-streams-sync'})
+    headers = {'User-Agent': 'ukreiif-streams-sync'}
+    # On GitHub, a Cloudflare rule on ukreiif.com lets requests with this secret key through
+    if os.environ.get('SYNC_KEY'):
+        headers['X-Sync-Key'] = os.environ['SYNC_KEY']
+    req = urllib.request.Request(f'{url}?sync={int(time.time())}', headers=headers)
     try:
         with urllib.request.urlopen(req, timeout=30) as r:
             return r.read().decode('utf-8')
@@ -199,7 +202,7 @@ def merge_logos(ours, theirs):
     for i, w in enumerate(theirs):
         o = match.get(i)
         if o:
-            switched += o['src'] != w['src']
+            switched += esc_url(o['src']) != esc_url(w['src'])
             out.append(render({'src': w['src'], 'alt': o['alt']}))
         else:
             notes.append(f'added **{w["alt"]}**')
@@ -302,7 +305,7 @@ def sync_sponsors(page, stream, wp_groups):
             o = match.get(i)
             if o:
                 # Same organisation: keep our name and size class, take the WordPress picture
-                switched += o['src'] != w['src']
+                switched += esc_url(o['src']) != esc_url(w['src'])
                 if o['label'].upper() != g['label'].upper():
                     notes.append(f'sponsor **{o["alt"]}**: label {o["label"].upper()} -> {g["label"].upper()}')
                 logos.append({'src': w['src'], 'alt': o['alt'], 'cls': o['cls']})
