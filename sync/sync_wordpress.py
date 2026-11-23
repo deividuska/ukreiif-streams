@@ -400,12 +400,19 @@ def read_wp_programme(soup, url):
         tabs = [text(b.get_text(' ')) for b in column.select('.wp-block-tab-list [role="tab"]')]
         if len(tabs) != len(panels):
             raise Stop(f'{url}: programme has {len(tabs)} tab names but {len(panels)} tabs')
-        days = [read(x) for x in panels]
+        # each tab can have its own date line (Heritage: Day One / Day Two)
+        days, day_dates = [], []
+        for x in panels:
+            state['date'] = None
+            days.append(read(x))
+            day_dates.append(state['date'])
+        date = None
     else:
         tabs, days = None, [read(column)]
+        date, day_dates = state['date'], [None]
     if not any(g['sessions'] for d in days for g in d):
         raise Stop(f'{url}: the outline programme has no sessions')
-    return {'date': state['date'], 'tabs': tabs, 'days': days}
+    return {'date': date, 'tabs': tabs, 'days': days, 'day_dates': day_dates}
 
 
 # Our programme: everything between the "OUTLINE PROGRAMME" heading and the end of its column
@@ -438,11 +445,13 @@ def read_our_programme(region):
     if tabs:
         buttons = tabs.select('.uks-tab-list button')
         panels = tabs.find_all('div', class_='uks-tab-panel', recursive=False)
+        day_dates = [x.find('p', class_='uks-programme-date', recursive=False) for x in panels]
         return {'date': text(date.get_text()) if date else None,
                 'tabs': [text(b.get_text()) for b in buttons], 'ids': [x['id'] for x in panels],
-                'days': [groups(x) for x in panels]}
+                'days': [groups(x) for x in panels],
+                'day_dates': [text(d.get_text()) if d else None for d in day_dates]}
     return {'date': text(date.get_text()) if date else None, 'tabs': None, 'ids': [],
-            'days': [groups(soup)]}
+            'days': [groups(soup)], 'day_dates': [None]}
 
 
 def render_programme(prog, page_name, ids, times):
@@ -482,6 +491,9 @@ def render_programme(prog, page_name, ids, times):
     for i, (gs, tid) in enumerate(zip(prog['days'], tab_ids)):
         lines.append(f'{pad}  <div class="uks-tab-panel" role="tabpanel" id="{tid}" '
                      f'aria-labelledby="{tid}-tab" tabindex="0"{"" if i == 0 else " hidden"}>')
+        day_date = prog['day_dates'][i] if i < len(prog['day_dates']) else None
+        if day_date:
+            lines.append(f'{pad}    <p class="uks-programme-date">{esc_text(day_date)}</p>')
         lines += groups(gs, pad + '    ')
         lines.append(f'{pad}  </div>')
     lines.append(f'{pad}</div>')
@@ -495,6 +507,8 @@ def programme_lines(prog):
         out.append(f'date: {prog["date"]}')
     for i, gs in enumerate(prog['days']):
         tab = f'{prog["tabs"][i]} | ' if prog['tabs'] else ''
+        if i < len(prog['day_dates']) and prog['day_dates'][i]:
+            out.append(f'{tab}date: {prog["day_dates"][i]}')
         for g in gs:
             for x in g['sessions']:
                 head = f'{g["heading"].upper()} | ' if g['heading'] else ''

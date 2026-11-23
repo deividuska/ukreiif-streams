@@ -14,7 +14,7 @@ class and id uses the `uks-` prefix so the two can never clash.
 | `pages/investment-trends.html` | Investment and Finance Trends &amp; Insights. |
 | `pages/transport.html` | Transport &amp; Infrastructure Stage, with three programme day tabs. |
 | `pages/sports.html` | Sports Investment &amp; Regeneration Summit, with Wednesday and Thursday programme tabs. |
-| `pages/heritage.html` | Heritage, Culture &amp; Creative Industries Zone. |
+| `pages/heritage.html` | Heritage, Culture &amp; Creative Industries Zone, with Day One and Day Two programme tabs. |
 | `pages/healthcare.html` | Healthcare Day, with Cinema Stage and Roundtable Room programme groups. |
 | `pages/education.html` | Education &amp; Place Day. |
 
@@ -79,7 +79,7 @@ the change on WordPress. Nothing else on the pages (speakers, text, video) is to
   top row automatically.
 - **Outline programme** (the `#programme` section, left column): day tabs (standard WordPress
   Tabs block), room headings (`.hcc-room`), session titles (any `..__title` class) and the line
-  under each title (the next paragraph). Heritage's date line (`.hcc-prog-day`) and times
+  under each title (the next paragraph). Heritage's date line (`.hcc-prog-day`, one per day tab) and times
   (`..__time`) are used too; times only show on pages that already show them (Heritage).
   Titles typed in ALL CAPS on WordPress are put into title case, keeping short names like KFC,
   MAC, AUDE and TBC in capitals (`KEEP_CAPS` in the script); other titles stay as written.
