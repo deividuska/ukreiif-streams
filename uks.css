@@ -368,6 +368,11 @@
   max-width: 100%;
 }
 
+/* Four logos per row (Education); phones still show two */
+.uks-sponsors-four {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
 /* ----- Grouped sponsor labels ----- */
 
 .uks-sponsors-grouped .uks-sponsor {
