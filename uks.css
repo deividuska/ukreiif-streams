@@ -388,6 +388,21 @@
   grid-column: 1 / -1;
 }
 
+/* First sponsor on its own row, whatever its label (High Streets: KFC as Associate Partner) */
+.uks-sponsors-first-row > .uks-sponsor:first-child {
+  grid-column: 1 / -1;
+}
+
+.uks-sponsors-first-row > .uks-sponsor:first-child img {
+  width: 180px;
+  object-position: left center;
+}
+
+/* Labels below take two lines, so logos line up when one label is shorter */
+.uks-sponsors-first-row > .uks-sponsor:not(:first-child) .uks-eyebrow {
+  min-height: 2.8em;
+}
+
 .uks-sponsor-headline img {
   width: 180px;
 }
